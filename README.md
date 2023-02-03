@@ -1,5 +1,5 @@
 
-![mastodon toot elephant](./tootbot.png "Mastodon empty toot")
+<img src="./tootbot.png" width="100" height="100" alt="mastodon elephant toot empty">
 
 # Tootbot
 
