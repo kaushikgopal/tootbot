@@ -1,4 +1,6 @@
 
+![mastodon toot elephant](./tootbot.png "Mastodon empty toot")
+
 # Tootbot
 
 This is a simple kscript cli script that will parse a Json blog feed,
