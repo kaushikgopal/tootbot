@@ -11,9 +11,20 @@ import java.util.*
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.buffer
+import org.joda.time.LocalDateTime
+import org.joda.time.LocalDate
+
 
 val jsonFeedFile = "./../kau.sh/public/index.json".toPath()
+val tootsFile = "./toots.csv".toPath()
 
+println(" *** 🤖Tootbot 🏁 *** ")
+
+/*
+ * **********************
+ * Load blog feed json
+ * **********************
+ */
 
 data class Page(
   val title: String,
@@ -30,8 +41,6 @@ data class Feed(
   @Json(name = "items")
   val pages: List<Page>
 )
-
-println(" *** 🤖Tootbot 🏁 *** ")
 
 // go through kau.sh RSS feed
 val jsonFile: String = FileSystem.SYSTEM
@@ -50,13 +59,60 @@ val feed: Feed = jsonParser
 
 println("🤖 found ${feed.pages.count()} pages")
 
-// toot posts that:
-  // a. have not been tooted before (hash/store)
-  // b. are older than 5 minutes (but newer than today)
+/*
+ * **********************
+ * load tooted file
+ * **********************
+ */
+
+data class Tooted(
+  val filePath: String,
+  val tootId: String?,
+)
+
+var tooted = mutableListOf<Tooted>()
+
+FileSystem.SYSTEM.read(tootsFile) {
+  while (true) {
+    val line = readUtf8Line() ?: break
+    val (path, tootId) = line.split(',', ignoreCase = false, limit = 2)
+    tooted.add(Tooted(path, tootId))
+  }
+}
+
+println("🤖 tooted ${tooted.count()} times before")
+
+/*
+ * **********************
+ * collect un-tooted
+ * **********************
+ */
+
+val forceToot = listOf(
+  "blog/2022-09-24-awk-1-oneliner-dollar-explanation/index.md",
+)
+
+val tootedFilePaths = tooted.map { it.filePath }
+val tootable: List<Page> = feed.pages
+  .filterNot { page -> page.filePath in tootedFilePaths }
+  .filter { page ->
+    LocalDate(page.publishedDate) == LocalDateTime.now().toLocalDate() ||
+        page.filePath in forceToot
+  }
+
+println("🤖 about to send ${tootable.count()} toots now")
 
 
-// provide manual args option
- // force toot a specific post inserting entry
-//readLines(File())
+/*
+ * **********************
+ * toot the un-tooted
+ * **********************
+ */
+
+/*
+ * **********************
+ * update tooted file
+ * **********************
+ */
 
 println(" *** Tootbot ✅ *** ")
