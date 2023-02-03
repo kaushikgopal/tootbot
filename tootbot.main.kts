@@ -2,6 +2,9 @@
 
 @file:Repository("https://jitpack.io")
 @file:DependsOn("com.github.yschimke:okurl-script:2.1.0")
+@file:Repository("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+@file:DependsOn("social.bigbone:bigbone:2.0.0-SNAPSHOT")
+
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
@@ -13,10 +16,15 @@ import okio.Path.Companion.toPath
 import okio.buffer
 import org.joda.time.LocalDateTime
 import org.joda.time.LocalDate
+import social.bigbone.MastodonClient
+import social.bigbone.api.entity.Status
 
 
 val jsonFeedFile = "./../kau.sh/public/index.json".toPath()
 val tootsFile = "./toots.csv".toPath()
+
+val mastodonInstance = ""
+val mastodonToken = ""
 
 println(" *** 🤖Tootbot 🏁 *** ")
 
@@ -108,6 +116,36 @@ println("🤖 about to send ${tootable.count()} toots now")
  * toot the un-tooted
  * **********************
  */
+
+val mastodonClient = MastodonClient.Builder(mastodonInstance)
+  .accessToken(mastodonToken)
+  .build()
+
+//mastodonClient.timelines
+//  .getHomeTimeline(Range())
+//  .execute()
+//  .part
+//  .forEach {
+//    println("🐘 ${it.content}")
+//  }
+
+try {
+	// using previously defined client with access token
+	val request = mastodonClient.statuses.postStatus(
+		status = "Hello World! #HelloWorld 🐘",
+		inReplyToId = null,
+		mediaIds = null,
+		sensitive = false,
+		spoilerText = null,
+		visibility = Status.Visibility.Unlisted
+	)
+
+  val status = request.execute()
+  println("🐘 posted status at ${status.id}")  // 109798419127349990
+
+} catch (e: Exception) {
+	// error handling
+}
 
 /*
  * **********************
