@@ -44,8 +44,9 @@ Head on over to your Mastodon Profile -> Developer settings page and create
 an application. After creating a new application you should find "Your access token".
 
 ```kt
-// https://mastodon.social/settings/applications
-// https://hachyderm.io/settings/applications
+// Settings page link:
+  // https://mastodon.social/settings/applications
+  // https://hachyderm.io/settings/applications
 val mastodonToken = "BUXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX_AAAAAA"
 ```
 
