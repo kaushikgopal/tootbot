@@ -30,7 +30,7 @@ import java.util.*
 val jsonFeedUrl = "https://kau.sh/index.json"
 val tootsFile = "./toots.csv".toPath()
 
-val mastodonInstance = ""
+val mastodonInstance = "mastodon.social"
 val mastodonToken = ""
 
 println(" *** 🤖Tootbot 🏁 *** ")
@@ -52,10 +52,10 @@ data class Page(
     val summary: String?,
 ) {
   fun statusText(): String {
-      return """
-        $title\n
-        #blog \n\n
-        $url
+    return """
+        $title
+
+        $url #blog
       """.trimIndent()
   }
 }
@@ -117,7 +117,7 @@ println("🤖 tooted ${tooted.count()} times before")
  */
 
 val forceToot = listOf(
-    "blog/2023-02-02-own-your-online-presence/index.md",
+    "blog/2022-08-20-mac-mini-tailscale-benefits-tips-vpn-vps/index.md",
 )
 
 val tootedFilePaths = tooted.map { it.filePathId }
