@@ -92,3 +92,7 @@ val forceToot = listOf(
 For now, I run this script on a cron job from command line, on a Mac mini server
 that I use. I could dockerize it and make it even more easy but this works for
 me and is pretty simple, so no current plans for that.
+
+<img width="422" alt="SCR-20230203-qiz" src="https://user-images.githubusercontent.com/1042037/216743859-10d401b1-c8d5-40aa-88e1-b5e9fb9163aa.png">
+
+
