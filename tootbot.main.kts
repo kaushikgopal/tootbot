@@ -16,7 +16,6 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import java.util.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okio.FileSystem
@@ -25,6 +24,7 @@ import org.joda.time.LocalDate
 import org.joda.time.LocalDateTime
 import social.bigbone.MastodonClient
 import social.bigbone.api.entity.Status
+import java.util.*
 
 
 val jsonFeedUrl = "https://kau.sh/index.json"
@@ -95,7 +95,7 @@ println("🤖 found ${feed.pages.count()} pages in the feed")
 
 data class Tooted(
     val filePathId: String,
-    val tootId: String?,
+    val tootId: String,
 )
 
 var tooted = mutableListOf<Tooted>()
@@ -149,7 +149,7 @@ val mastodonClient = MastodonClient.Builder(mastodonInstance)
 //  }
 
 
-feed.pages.forEach { page ->
+tootable.forEach { page ->
   try {
 
     val request = mastodonClient.statuses.postStatus(
@@ -177,6 +177,15 @@ feed.pages.forEach { page ->
  * update tooted file
  * **********************
  */
+
+FileSystem.SYSTEM.write(tootsFile) {
+  tooted.forEach { tooted ->
+    writeUtf8(tooted.filePathId)
+    writeUtf8(",")
+    writeUtf8(tooted.tootId)
+    writeUtf8("\n")
+  }
+}
 
 
 println(" *** Tootbot ✅ *** ")
