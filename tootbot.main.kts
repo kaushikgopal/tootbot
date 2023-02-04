@@ -26,12 +26,13 @@ import social.bigbone.MastodonClient
 import social.bigbone.api.entity.Status
 import java.util.*
 
-
+val mastodonToken = ""
+val mastodonInstance = "mastodon.social"
 val jsonFeedUrl = "https://kau.sh/index.json"
 val tootsFile = "./toots.csv".toPath()
-
-val mastodonInstance = "mastodon.social"
-val mastodonToken = ""
+val forceToot = listOf(
+    "blog/2023-02-02-own-your-online-presence/index.md",
+)
 
 println(" *** 🤖Tootbot 🏁 *** ")
 
@@ -46,17 +47,26 @@ data class Page(
     val url: String,
     @Json(name = "date_published")
     val publishedDate: Date,
-    @Json(name = "file_path")
     val id: String,
     @Json(name = "summary")
     val summary: String?,
 ) {
   fun statusText(): String {
-    return """
+    return if (summary?.isNotBlank() == true) {
+      """
+        $title
+
+        $summary
+
+        $url #blog
+      """
+    }else {
+      """
         $title
 
         $url #blog
-      """.trimIndent()
+      """
+    }.trimIndent()
   }
 }
 
@@ -94,7 +104,7 @@ println("🤖 found ${feed.pages.count()} pages in the feed")
  */
 
 data class Tooted(
-    val filePathId: String,
+    val postId: String,
     val tootId: String,
 )
 
@@ -116,11 +126,7 @@ println("🤖 tooted ${tooted.count()} times before")
  * **********************
  */
 
-val forceToot = listOf(
-    "blog/2022-08-20-mac-mini-tailscale-benefits-tips-vpn-vps/index.md",
-)
-
-val tootedFilePaths = tooted.map { it.filePathId }
+val tootedFilePaths = tooted.map { it.postId }
 val tootable: List<Page> = feed.pages
     .filterNot { page -> page.id in tootedFilePaths }
     .filter { page ->
@@ -180,7 +186,7 @@ tootable.forEach { page ->
 
 FileSystem.SYSTEM.write(tootsFile) {
   tooted.forEach { tooted ->
-    writeUtf8(tooted.filePathId)
+    writeUtf8(tooted.postId)
     writeUtf8(",")
     writeUtf8(tooted.tootId)
     writeUtf8("\n")
