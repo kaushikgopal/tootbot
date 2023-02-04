@@ -43,12 +43,22 @@ println(" *** 🤖Tootbot 🏁 *** ")
 
 data class Page(
     val title: String,
+    val url: String,
     @Json(name = "date_published")
     val publishedDate: Date,
     @Json(name = "file_path")
-    val filePath: String,
-    val description: String?,
-)
+    val id: String,
+    @Json(name = "summary")
+    val summary: String?,
+) {
+  fun statusText(): String {
+      return """
+        $title\n
+        #blog \n\n
+        $url
+      """.trimIndent()
+  }
+}
 
 data class Feed(
     val title: String,
@@ -84,7 +94,7 @@ println("🤖 found ${feed.pages.count()} pages in the feed")
  */
 
 data class Tooted(
-    val filePath: String,
+    val filePathId: String,
     val tootId: String?,
 )
 
@@ -107,15 +117,15 @@ println("🤖 tooted ${tooted.count()} times before")
  */
 
 val forceToot = listOf(
-    "blog/2022-09-24-awk-1-oneliner-dollar-explanation/index.md",
+    "blog/2023-02-02-own-your-online-presence/index.md",
 )
 
-val tootedFilePaths = tooted.map { it.filePath }
+val tootedFilePaths = tooted.map { it.filePathId }
 val tootable: List<Page> = feed.pages
-    .filterNot { page -> page.filePath in tootedFilePaths }
+    .filterNot { page -> page.id in tootedFilePaths }
     .filter { page ->
       LocalDate(page.publishedDate) == LocalDateTime.now().toLocalDate() ||
-          page.filePath in forceToot
+          page.id in forceToot
     }
 
 println("🤖 about to send ${tootable.count()} toots now")
@@ -138,13 +148,12 @@ val mastodonClient = MastodonClient.Builder(mastodonInstance)
 //    println("🐘 ${it.content}")
 //  }
 
+
 feed.pages.forEach { page ->
   try {
 
-//    page.description
-
     val request = mastodonClient.statuses.postStatus(
-        status = "Hello World! #HelloWorld 🐘",
+        status = page.statusText(),
         inReplyToId = null,
         mediaIds = null,
         sensitive = false,
@@ -154,7 +163,7 @@ feed.pages.forEach { page ->
 
     val status = request.execute()
     println("🐘 posted status at ${status.id}")  // 109798419127349990
-    tooted.add(Tooted(page.filePath, status.id))
+    tooted.add(Tooted(page.id, status.id))
 
   } catch (e: Exception) {
     println("\uD83D\uDED1\uD83D\uDED1\uD83D\uDED1 error ${e.localizedMessage}")
@@ -168,5 +177,6 @@ feed.pages.forEach { page ->
  * update tooted file
  * **********************
  */
+
 
 println(" *** Tootbot ✅ *** ")
