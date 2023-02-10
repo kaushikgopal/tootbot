@@ -204,29 +204,31 @@ tootableList.forEach { page ->
   tootedList.add(tootedStatus)
 }
 
-tweetableList.forEach { page ->
-  val tootedStatus = tootedList.find { page.id == it.postId } ?: Tooted(page.id, "", 0)
+if (twitterConsumerKey.isNotBlank()) {
+  tweetableList.forEach { page ->
+    val tootedStatus = tootedList.find { page.id == it.postId } ?: Tooted(page.id, "", 0)
 
-  try {
-    val twitterClient = TwitterFactory(
-        ConfigurationBuilder()
-            .setOAuthConsumerKey(twitterConsumerKey)
-            .setOAuthConsumerSecret(twitterConsumerSecret)
-            .setOAuthAccessToken(twitterAccessToken)
-            .setOAuthAccessTokenSecret(twitterAccessTokenSecret)
-            .build()
-    ).instance
+    try {
+      val twitterClient = TwitterFactory(
+          ConfigurationBuilder()
+              .setOAuthConsumerKey(twitterConsumerKey)
+              .setOAuthConsumerSecret(twitterConsumerSecret)
+              .setOAuthAccessToken(twitterAccessToken)
+              .setOAuthAccessTokenSecret(twitterAccessTokenSecret)
+              .build()
+      ).instance
 
-    val status = twitterClient.updateStatus(page.statusText())
-    tootedStatus.tweetId = status.id
+      val status = twitterClient.updateStatus(page.statusText())
+      tootedStatus.tweetId = status.id
 
-    println("🐥 posted status at ${status.id}")
+      println("🐥 posted status at ${status.id}")
 
-  } catch (e: Exception) {
-    println("\uD83D\uDED1\uD83D\uDED1\uD83D\uDED1 error ${e.localizedMessage}")
+    } catch (e: Exception) {
+      println("\uD83D\uDED1\uD83D\uDED1\uD83D\uDED1 error ${e.localizedMessage}")
+    }
+
+    tootedList.add(tootedStatus)
   }
-
-  tootedList.add(tootedStatus)
 }
 
 /*
