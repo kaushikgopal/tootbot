@@ -144,10 +144,11 @@ println("🤖 tooted ${tootedList.count()} times before")
 val tootableList: List<Page> = feed.pages
     .filter { page ->
       val notTootedBefore = tootedList.find { it.postId == page.id }?.tootId?.isBlank() ?: true
-      val publishedToday =
-          LocalDate(page.publishedDate) == LocalDateTime.now().toLocalDate()
 
-      page.id in forceToot || (notTootedBefore && publishedToday)
+      val publishedRecently =
+          LocalDate(page.publishedDate).isAfter(LocalDate.now().minusDays(2))
+
+      page.id in forceToot || (notTootedBefore && publishedRecently)
     }
 
 val tweetableList: List<Page> = feed.pages
@@ -197,11 +198,10 @@ tootableList.forEach { page ->
     tootedStatus.tootId = status.id
     println("🐘 posted status at ${status.id}")  // 109798419127349990
 
+    tootedList.add(tootedStatus)
   } catch (e: Exception) {
     println("\uD83D\uDED1\uD83D\uDED1\uD83D\uDED1 error ${e.localizedMessage}")
   }
-
-  tootedList.add(tootedStatus)
 }
 
 if (twitterConsumerKey.isNotBlank()) {
